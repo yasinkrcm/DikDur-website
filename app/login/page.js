@@ -14,12 +14,19 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("/api/auth/login", {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
+      const endpoint = apiUrl ? `${apiUrl}/api/auth/login` : "/api/auth/login";
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
-      const data = await res.json();
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        data = { message: "Sunucudan geçersiz yanıt alındı." };
+      }
       if (!res.ok) throw new Error(data.message || "Giriş başarısız");
       localStorage.setItem("token", data.token);
       document.cookie = `token=${data.token}; path=/; max-age=${7 * 24 * 60 * 60}`;

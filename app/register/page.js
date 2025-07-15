@@ -15,12 +15,19 @@ export default function RegisterPage() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("/api/auth/register", {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
+      const endpoint = apiUrl ? `${apiUrl}/api/auth/register` : "/api/auth/register";
+      const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password, role }),
       });
-      const data = await res.json();
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        data = { message: "Sunucudan geçersiz yanıt alındı." };
+      }
       if (!res.ok) throw new Error(data.message || "Kayıt başarısız");
       // Eğer backend register sonrası token döndürüyorsa, aşağıdaki satırı açabilirsin:
       // localStorage.setItem("token", data.token);
