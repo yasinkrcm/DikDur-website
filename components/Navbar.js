@@ -2,18 +2,29 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { Menu, X, Activity, Sparkles } from "lucide-react"
+import LogoutButton from "./LogoutButton";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
+    setIsMounted(true);
     const handleScroll = () => {
       setScrolled(window.scrollY > 50)
     }
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setLoggedIn(!!localStorage.getItem("token"));
+      window.addEventListener("storage", () => setLoggedIn(!!localStorage.getItem("token")));
+    }
+  }, []);
 
   const navItems = [
     { name: "Ana Sayfa", href: "/" },
@@ -55,6 +66,16 @@ export default function Navbar() {
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-[#4682A9] to-[#749BC2] group-hover:w-full transition-all duration-300"></span>
               </Link>
             ))}
+            {isMounted && (
+              loggedIn ? (
+                <LogoutButton className="relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-[#4682A9] to-[#749BC2] text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 group" />
+              ) : (
+                <>
+                  <Link href="/login" className="relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-[#4682A9] to-[#749BC2] text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 group">Giriş</Link>
+                  <Link href="/register" className="relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-[#91C8E4] to-[#749BC2] text-blue-900 font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 group">Kayıt Ol</Link>
+                </>
+              )
+            )}
             <button className="relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-[#4682A9] to-[#749BC2] text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 group">
               <Sparkles className="mr-2 h-4 w-4 group-hover:animate-spin" />
               Başla
@@ -87,6 +108,16 @@ export default function Navbar() {
                   {item.name}
                 </Link>
               ))}
+              {isMounted && (
+                loggedIn ? (
+                  <LogoutButton className="mx-4 mt-4 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-[#4682A9] to-[#749BC2] text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300" />
+                ) : (
+                  <>
+                    <Link href="/login" className="mx-4 mt-4 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-[#4682A9] to-[#749BC2] text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">Giriş</Link>
+                    <Link href="/register" className="mx-4 mt-2 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-[#91C8E4] to-[#749BC2] text-blue-900 font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">Kayıt Ol</Link>
+                  </>
+                )
+              )}
               <button className="mx-4 mt-4 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-[#4682A9] to-[#749BC2] text-white font-bold rounded-xl shadow-lg">
                 <Sparkles className="mr-2 h-4 w-4" />
                 Başla

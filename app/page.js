@@ -3,6 +3,38 @@ import Link from "next/link"
 import { ArrowRight, BarChart3, Gamepad2, Users, Brain, Calendar, Trophy, Sparkles, Zap, Heart } from "lucide-react"
 import FeatureCard from "@/components/FeatureCard"
 import AnimatedCounter from "@/components/AnimatedCounter"
+import { useEffect, useState } from "react";
+
+// AnimatedParticles bileşeni
+function AnimatedParticles({ count = 20 }) {
+  const [bubbles, setBubbles] = useState([]);
+  useEffect(() => {
+    setBubbles(
+      Array.from({ length: count }, () => ({
+        left: Math.random() * 100,
+        top: Math.random() * 100,
+        animationDelay: Math.random() * 5,
+        animationDuration: 3 + Math.random() * 4,
+      }))
+    );
+  }, [count]);
+  return (
+    <div className="absolute inset-0">
+      {bubbles.map((bubble, i) => (
+        <div
+          key={i}
+          className="absolute w-2 h-2 bg-blue-light/40 rounded-full animate-float"
+          style={{
+            left: `${bubble.left}%`,
+            top: `${bubble.top}%`,
+            animationDelay: `${bubble.animationDelay}s`,
+            animationDuration: `${bubble.animationDuration}s`,
+          }}
+        ></div>
+      ))}
+    </div>
+  );
+}
 
 export default function HomePage() {
   const features = [
@@ -178,20 +210,7 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-black/20"></div>
 
         {/* Animated particles */}
-        <div className="absolute inset-0">
-          {[...Array(20)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute w-2 h-2 bg-blue-light/40 rounded-full animate-float"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 5}s`,
-                animationDuration: `${3 + Math.random() * 4}s`,
-              }}
-            ></div>
-          ))}
-        </div>
+        <AnimatedParticles count={20} />
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-5xl md:text-6xl font-black text-cream mb-6">Hazır mısın?</h2>

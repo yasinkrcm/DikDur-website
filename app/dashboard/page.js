@@ -1,7 +1,10 @@
+"use client";
+import useAuth from "@/hooks/useAuth";
 import { TrendingUp, Users, AlertTriangle, Award } from "lucide-react"
 import Card from "@/components/Card"
 
 export default function DashboardPage() {
+  useAuth();
   const departments = [
     { name: "Engineering", score: 85, employees: 45, color: "bg-green-500" },
     { name: "Marketing", score: 78, employees: 23, color: "bg-blue-500" },
