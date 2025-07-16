@@ -3,17 +3,19 @@ import useAuth from "@/hooks/useAuth";
 import { useEffect, useState } from "react";
 import { TrendingUp, Users, AlertTriangle, Award } from "lucide-react";
 import Card from "@/components/Card";
+import DepartmentDetailsModal from "@/components/DepartmentDetailsModal";
 
 export default function DashboardPage() {
   useAuth();
   const [departments, setDepartments] = useState([]);
   const [absenteeismData, setAbsenteeismData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedDept, setSelectedDept] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     Promise.all([
-      fetch("/api/posture/getDepartmentScores", { headers: { "Authorization": `Bearer ${token}` } }).then((res) => res.json()),
+      fetch("/api/posture/getAllDepartmentScores", { headers: { "Authorization": `Bearer ${token}` } }).then((res) => res.json()),
       fetch("/api/posture/getAbsenteeismTrends", { headers: { "Authorization": `Bearer ${token}` } }).then((res) => res.json()),
     ]).then(([dept, absentee]) => {
       setDepartments(Array.isArray(dept) ? dept : dept.data || []);
@@ -23,6 +25,24 @@ export default function DashboardPage() {
   }, []);
 
   if (loading) return <div className="p-8">Loading...</div>;
+
+  // Default departman listesi
+  const allDepartments = [
+    { name: "Engineering", color: "bg-green-500" },
+    { name: "Marketing", color: "bg-blue-500" },
+    { name: "Sales", color: "bg-yellow-500" },
+    { name: "HR", color: "bg-green-500" },
+    { name: "Finance", color: "bg-orange-500" }
+  ];
+
+  const mergedDepartments = allDepartments.map(dep => {
+    const found = departments.find(d => d.name === dep.name);
+    return {
+      ...dep,
+      employees: found?.employees ?? 0,
+      score: found?.score ?? 0
+    };
+  });
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-cream via-blue-light/20 to-blue-medium/30 py-8">
@@ -89,16 +109,20 @@ export default function DashboardPage() {
           <Card>
             <h3 className="text-lg font-semibold text-gray-900 mb-6">Department Posture Scores</h3>
             <div className="space-y-4">
-              {departments.map((dept, index) => (
-                <div key={index} className="flex items-center justify-between">
+              {mergedDepartments.map((dept, index) => (
+                <div
+                  key={index}
+                  className="flex items-center justify-between cursor-pointer hover:bg-blue-50 rounded px-2 py-1 transition"
+                  onClick={() => setSelectedDept(dept.name)}
+                >
                   <div className="flex items-center space-x-3">
-                    <div className={`w-3 h-3 rounded-full ${dept.color || "bg-blue-500"}`}></div>
+                    <div className={`w-3 h-3 rounded-full ${dept.color}`}></div>
                     <span className="font-medium text-gray-900">{dept.name}</span>
                     <span className="text-sm text-gray-500">({dept.employees} employees)</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <div className="w-24 bg-gray-200 rounded-full h-2">
-                      <div className={`h-2 rounded-full ${dept.color || "bg-blue-500"}`} style={{ width: `${dept.score}%` }}></div>
+                      <div className={`h-2 rounded-full ${dept.color}`} style={{ width: `${dept.score}%` }}></div>
                     </div>
                     <span className="text-sm font-semibold text-gray-900 w-8">{dept.score}</span>
                   </div>
@@ -188,6 +212,11 @@ export default function DashboardPage() {
           </div>
         </Card>
       </div>
+      <DepartmentDetailsModal
+        department={selectedDept}
+        open={!!selectedDept}
+        onClose={() => setSelectedDept(null)}
+      />
     </div>
   )
 }

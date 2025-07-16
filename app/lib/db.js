@@ -1,8 +1,8 @@
 import mongoose from 'mongoose';
 
-const MONGODB_URI = process.env.MONGODB_URI;
+const MONGODB_URI = process.env.MONGODB_URI || process.env.MONGO_URI;
 
-if (!MONGODB_URI) throw new Error('MONGODB_URI environment variable is required');
+if (!MONGODB_URI) throw new Error('MONGODB_URI or MONGO_URI environment variable is required');
 
 let cached = global.mongoose;
 if (!cached) cached = global.mongoose = { conn: null, promise: null };

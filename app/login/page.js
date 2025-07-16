@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
@@ -14,7 +14,7 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://192.168.56.1:3000";
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
       const endpoint = apiUrl ? `${apiUrl}/api/auth/login` : "/api/auth/login";
       const res = await fetch(endpoint, {
         method: "POST",

@@ -15,7 +15,7 @@ export default function RegisterPage() {
     setLoading(true);
     setError("");
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://192.168.56.1:3000";
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000";
       const endpoint = apiUrl ? `${apiUrl}/api/auth/register` : "/api/auth/register";
       const res = await fetch(endpoint, {
         method: "POST",
@@ -29,10 +29,14 @@ export default function RegisterPage() {
         data = { message: "Sunucudan geçersiz yanıt alındı." };
       }
       if (!res.ok) throw new Error(data.message || "Kayıt başarısız");
-      // Eğer backend register sonrası token döndürüyorsa, aşağıdaki satırı açabilirsin:
-      // localStorage.setItem("token", data.token);
-      // document.cookie = `token=${data.token}; path=/; max-age=${7 * 24 * 60 * 60}`;
-      router.push("/login");
+      // Otomatik login ve yönlendirme:
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+        document.cookie = `token=${data.token}; path=/; max-age=${7 * 24 * 60 * 60}`;
+        router.push("/dashboard");
+      } else {
+        router.push("/login");
+      }
     } catch (err) {
       setError(err.message);
     } finally {
