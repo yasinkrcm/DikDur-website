@@ -4,5 +4,7 @@ const therapistSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   bio: { type: String },
   available: [{ type: Date }],
+  imageUrl: { type: String },
+  phone: { type: String },
 });
 export default mongoose.models.Therapist || mongoose.model("Therapist", therapistSchema); 

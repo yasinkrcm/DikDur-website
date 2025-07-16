@@ -5,6 +5,7 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   role: { type: String, enum: ["admin", "employee", "therapist"], default: "employee" },
   totalPoints: { type: Number, default: 0 },
+  department: { type: String }, // departman alanı eklendi
 }, { timestamps: true });
 
 export default mongoose.models.User || mongoose.model("User", userSchema); 

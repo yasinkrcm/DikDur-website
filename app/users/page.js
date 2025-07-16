@@ -44,7 +44,7 @@ export default function UserProfilePage() {
   if (loading) return <div className="p-8">Loading...</div>;
 
   return (
-    <div className="max-w-xl mx-auto py-12 px-4">
+    <div className="max-w-xl mx-auto pt-24 pb-12 px-4">
       <h1 className="text-3xl font-bold mb-6 text-blue-dark">User Profile</h1>
       {message && <div className="mb-4 text-green-700">{message}</div>}
       {!edit ? (

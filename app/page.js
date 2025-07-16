@@ -90,7 +90,7 @@ export default function HomePage() {
   ]
 
   return (
-    <div className="min-h-screen overflow-hidden">
+    <div className="min-h-screen overflow-hidden pt-24">
       {/* Animated Background */}
       <div className="fixed inset-0 -z-10">
         <div className="absolute inset-0 bg-gradient-to-br from-[#FFFBDE] via-[#FFFBDE] to-[#91C8E4]/20"></div>
@@ -234,14 +234,7 @@ export default function HomePage() {
         </div>
       </section>
       <div className="flex flex-wrap gap-4 justify-center mt-12">
-        <Link href="/dashboard" className="btn-primary">Dashboard</Link>
-        <Link href="/users" className="btn-secondary">Profil</Link>
-        <Link href="/rewards" className="btn-secondary">Ödüller</Link>
-        <Link href="/events" className="btn-secondary">Etkinlikler</Link>
-        <Link href="/challenges" className="btn-secondary">Meydan Okumalar</Link>
-        <Link href="/therapists" className="btn-secondary">Terapistler</Link>
-        <Link href="/ergonomics" className="btn-secondary">Ergonomi</Link>
-        <Link href="/notifications" className="btn-secondary">Bildirimler</Link>
+        {/* Kaldırıldı: Dashboard, Profil, Ödüller, Etkinlikler, Meydan Okumalar, Terapistler, Ergonomi, Bildirimler */}
       </div>
     </div>
   )

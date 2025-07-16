@@ -1,18 +1,17 @@
 "use client"
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Menu, X, Activity, Sparkles, Trophy } from "lucide-react"
+import { Menu, X, Activity, Sparkles, Trophy, Bell, User } from "lucide-react"
 import LogoutButton from "./LogoutButton";
+import ClientOnly from "./ClientOnly";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [loggedIn, setLoggedIn] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
   const [points, setPoints] = useState(null);
 
   useEffect(() => {
-    setIsMounted(true);
     const handleScroll = () => {
       setScrolled(window.scrollY > 50)
     }
@@ -23,30 +22,49 @@ export default function Navbar() {
   useEffect(() => {
     if (typeof window !== "undefined") {
       setLoggedIn(!!localStorage.getItem("token"));
-      window.addEventListener("storage", () => setLoggedIn(!!localStorage.getItem("token")));
+      const handleStorage = () => setLoggedIn(!!localStorage.getItem("token"));
+      const handleAuthChanged = () => setLoggedIn(!!localStorage.getItem("token"));
+      window.addEventListener("storage", handleStorage);
+      window.addEventListener("authChanged", handleAuthChanged);
+      return () => {
+        window.removeEventListener("storage", handleStorage);
+        window.removeEventListener("authChanged", handleAuthChanged);
+      };
     }
   }, []);
 
+  // Puanları düzenli olarak güncelle
   useEffect(() => {
-    // Puanları çek
-    const token = localStorage.getItem("token");
-    if (token) {
-      fetch("/api/rewards/user-stats", { headers: { "Authorization": `Bearer ${token}` } })
-        .then(async res => {
-          if (!res.ok) return null;
-          try { return await res.json(); } catch { return null; }
-        })
-        .then(data => setPoints(data?.totalPoints ?? null));
-    }
+    let interval;
+    const fetchPoints = () => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        fetch("/api/rewards/user-stats", { headers: { "Authorization": `Bearer ${token}` } })
+          .then(async res => {
+            if (!res.ok) return null;
+            try { return await res.json(); } catch { return null; }
+          })
+          .then(data => setPoints(data?.totalPoints ?? null));
+      } else {
+        setPoints(null);
+      }
+    };
+    fetchPoints();
+    interval = setInterval(fetchPoints, 10000); // 10 saniyede bir güncelle
+    window.addEventListener("storage", fetchPoints);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("storage", fetchPoints);
+    };
   }, []);
 
   const navItems = [
-    { name: "Ana Sayfa", href: "/" },
     { name: "Dashboard", href: "/dashboard" },
     { name: "Challenges", href: "/challenges" },
     { name: "Terapistler", href: "/therapists" },
     { name: "Etkinlikler", href: "/events" },
     { name: "Ödüller", href: "/rewards" },
+    { name: "Ergonomi", href: "/ergonomics" }, // Ergonomi eklendi
   ]
 
   return (
@@ -94,23 +112,28 @@ export default function Navbar() {
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-[#4682A9] to-[#749BC2] group-hover:w-full transition-all duration-300"></span>
               </Link>
             ))}
-            {isMounted && (
-              loggedIn ? (
+            {/* Bildirimler ve Profil simgeleri */}
+            <Link href="/notifications" className="relative text-gray-700 hover:text-[#4682A9] transition-colors duration-300 group">
+              <Bell className="h-6 w-6" />
+            </Link>
+            <Link href="/users" className="relative text-gray-700 hover:text-[#4682A9] transition-colors duration-300 group">
+              <User className="h-6 w-6" />
+            </Link>
+            <ClientOnly>
+              {loggedIn ? (
                 <LogoutButton className="relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-[#4682A9] to-[#749BC2] text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 group" />
               ) : (
                 <>
                   <Link href="/login" className="relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-[#4682A9] to-[#749BC2] text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 group">Giriş</Link>
                   <Link href="/register" className="relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-[#91C8E4] to-[#749BC2] text-blue-900 font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 group">Kayıt Ol</Link>
                 </>
-              )
-            )}
+              )}
+            </ClientOnly>
             <Link 
               href="/posture-cam"
               className="relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-[#4682A9] to-[#749BC2] text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 group"
             >
-              <Sparkles className="mr-2 h-4 w-4 group-hover:animate-spin" />
               Başla
-              <div className="absolute inset-0 bg-gradient-to-r from-[#4682A9] to-[#749BC2] rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity"></div>
             </Link>
             {/* Desktopta points */}
             <span className="hidden md:flex items-center text-blue-dark font-bold bg-blue-100 px-3 py-1 rounded-xl text-sm ml-2">
@@ -134,21 +157,20 @@ export default function Navbar() {
                   {item.name}
                 </Link>
               ))}
-              {isMounted && (
-                loggedIn ? (
+              <ClientOnly>
+                {loggedIn ? (
                   <LogoutButton className="mx-4 mt-4 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-[#4682A9] to-[#749BC2] text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300" />
                 ) : (
                   <>
                     <Link href="/login" className="mx-4 mt-4 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-[#4682A9] to-[#749BC2] text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">Giriş</Link>
                     <Link href="/register" className="mx-4 mt-2 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-[#91C8E4] to-[#749BC2] text-blue-900 font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">Kayıt Ol</Link>
                   </>
-                )
-              )}
+                )}
+              </ClientOnly>
               <Link 
                 href="/posture-cam"
                 className="mx-4 mt-4 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-[#4682A9] to-[#749BC2] text-white font-bold rounded-xl shadow-lg"
               >
-                <Sparkles className="mr-2 h-4 w-4" />
                 Başla
               </Link>
             </div>

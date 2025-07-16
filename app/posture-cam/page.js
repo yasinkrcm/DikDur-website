@@ -5,7 +5,7 @@ export default function PostureCam() {
   const videoRef = useRef(null);
   const streamRef = useRef(null);
   const [error, setError] = useState('');
-  const [cameraOn, setCameraOn] = useState(true);
+  const [cameraOn, setCameraOn] = useState(false); // Varsayılan olarak kapalı
 
   useEffect(() => {
     if (!cameraOn) return;
@@ -39,6 +39,11 @@ export default function PostureCam() {
     };
   }, [cameraOn]);
 
+  const handleOpenCamera = () => {
+    setCameraOn(true);
+    setError("");
+  };
+
   const handleCloseCamera = () => {
     setCameraOn(false);
     if (streamRef.current) {
@@ -54,7 +59,7 @@ export default function PostureCam() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
-      <h1 className="text-2xl font-bold mb-4">Duruş Analizi (Kamera Açık)</h1>
+      <h1 className="text-2xl font-bold mb-4">Duruş Analizi</h1>
       {error && <div className="text-red-600">{error}</div>}
       {cameraOn ? (
         <>
@@ -62,7 +67,10 @@ export default function PostureCam() {
           <button onClick={handleCloseCamera} className="mt-4 px-6 py-2 bg-red-600 text-white rounded-lg font-bold shadow hover:bg-red-700 transition">Kamerayı Kapat</button>
         </>
       ) : (
-        <div className="text-gray-500 mt-8">Kamera kapalı.</div>
+        <>
+          <button onClick={handleOpenCamera} className="px-6 py-2 bg-blue-600 text-white rounded-lg font-bold shadow hover:bg-blue-700 transition">Kamerayı Aç</button>
+          <div className="text-gray-500 mt-8">Kamera kapalı.</div>
+        </>
       )}
       <p className="mt-4 text-gray-500">Burada yakında YOLO ile duruş analizi yapılacak.</p>
     </div>

@@ -1,12 +1,12 @@
-import { connectToDatabase } from '../../lib/db';
-import Posture from '../../models/Posture';
-import User from '../../models/User';
+import { dbConnect } from '../../_db';
+import Posture from '../../_models/Posture';
+import User from '../../_models/User';
 
-export default async function handler(req, res) {
-  if (req.method !== 'GET') return res.status(405).end();
-  await connectToDatabase();
-  const { department } = req.query;
-  if (!department) return res.status(400).json({ message: 'Departman zorunlu.' });
+export async function GET(req) {
+  await dbConnect();
+  const { searchParams } = new URL(req.url);
+  const department = searchParams.get('department');
+  if (!department) return Response.json({ message: 'Departman zorunlu.' }, { status: 400 });
 
   // Son 30 günün skorlarını çek
   const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
@@ -30,7 +30,7 @@ export default async function handler(req, res) {
     else risk = 'Low';
   }
 
-  res.status(200).json({
+  return Response.json({
     department,
     avgScore: avg,
     maxScore: max,

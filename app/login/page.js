@@ -9,6 +9,13 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  // redirect parametresini oku
+  let redirect = "/dashboard";
+  if (typeof window !== "undefined") {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("redirect")) redirect = params.get("redirect");
+  }
+
   async function handleSubmit(e) {
     e.preventDefault();
     setLoading(true);
@@ -28,9 +35,16 @@ export default function LoginPage() {
         data = { message: "Sunucudan geçersiz yanıt alındı." };
       }
       if (!res.ok) throw new Error(data.message || "Giriş başarısız");
-      localStorage.setItem("token", data.token);
-      document.cookie = `token=${data.token}; path=/; max-age=${7 * 24 * 60 * 60}`;
-      router.push("/dashboard");
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+        window.dispatchEvent(new Event("authChanged"));
+        document.cookie = `token=${data.token}; path=/; max-age=${7 * 24 * 60 * 60}`;
+        router.push(redirect);
+      } else {
+        // This case should ideally not be reached if the response is valid JSON
+        // but as a fallback, you might want to set an error message.
+        throw new Error("Token not found in response.");
+      }
     } catch (err) {
       setError(err.message);
     } finally {
@@ -39,7 +53,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-blue-300">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-100 to-blue-300 pt-24">
       <form onSubmit={handleSubmit} className="bg-white p-8 rounded-xl shadow-lg w-full max-w-md space-y-6">
         <h2 className="text-3xl font-bold text-center text-blue-800">DikDur Giriş</h2>
         <div>
