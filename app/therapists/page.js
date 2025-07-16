@@ -1,57 +1,24 @@
-import { MapPin, Star, Clock, Phone, Calendar } from "lucide-react"
-import Card from "@/components/Card"
+"use client";
+import { useEffect, useState } from "react";
+import { MapPin, Star, Clock, Phone, Calendar } from "lucide-react";
+import Card from "@/components/Card";
 
 export default function TherapistsPage() {
-  const therapists = [
-    {
-      id: 1,
-      name: "Dr. Sarah Johnson",
-      specialty: "Musculoskeletal Physiotherapy",
-      rating: 4.9,
-      reviews: 127,
-      distance: "2.3 km",
-      availability: "Available Today",
-      image: "/placeholder.svg?height=80&width=80",
-      experience: "8 years",
-      languages: ["English", "Spanish"],
-    },
-    {
-      id: 2,
-      name: "Dr. Michael Chen",
-      specialty: "Sports Rehabilitation",
-      rating: 4.8,
-      reviews: 94,
-      distance: "3.1 km",
-      availability: "Next Available: Tomorrow",
-      image: "/placeholder.svg?height=80&width=80",
-      experience: "12 years",
-      languages: ["English", "Mandarin"],
-    },
-    {
-      id: 3,
-      name: "Dr. Emily Rodriguez",
-      specialty: "Workplace Ergonomics",
-      rating: 4.9,
-      reviews: 156,
-      distance: "1.8 km",
-      availability: "Available Today",
-      image: "/placeholder.svg?height=80&width=80",
-      experience: "6 years",
-      languages: ["English", "Spanish", "French"],
-    },
-    {
-      id: 4,
-      name: "Dr. James Wilson",
-      specialty: "Chronic Pain Management",
-      rating: 4.7,
-      reviews: 89,
-      distance: "4.2 km",
-      availability: "Next Available: Friday",
-      image: "/placeholder.svg?height=80&width=80",
-      experience: "15 years",
-      languages: ["English"],
-    },
-  ]
+  const [therapists, setTherapists] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    fetch("/api/therapist/list", { headers: { "Authorization": `Bearer ${token}` } })
+      .then(async (res) => {
+        if (!res.ok) return [];
+        try { return await res.json(); } catch { return []; }
+      })
+      .then((data) => {
+        setTherapists(Array.isArray(data) ? data : data.data || []);
+        setLoading(false);
+      });
+  }, []);
 
   const specialties = [
     "All Specialties",
@@ -60,7 +27,9 @@ export default function TherapistsPage() {
     "Workplace Ergonomics",
     "Chronic Pain",
     "Post-Injury Recovery",
-  ]
+  ];
+
+  if (loading) return <div className="p-8">Loading...</div>;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-cream via-blue-light/20 to-blue-medium/30 py-8">
@@ -176,19 +145,19 @@ export default function TherapistsPage() {
                               <Clock className="h-5 w-5 text-blue-medium" />
                               <span className="font-medium">{therapist.experience} experience</span>
                             </div>
-                            <span className="font-medium">Languages: {therapist.languages.join(", ")}</span>
+                            <span className="font-medium">Languages: {Array.isArray(therapist.languages) ? therapist.languages.join(", ") : "Bilinmiyor"}</span>
                           </div>
                         </div>
 
                         <div className="flex flex-col space-y-3 md:items-end">
                           <span
                             className={`px-4 py-2 rounded-full text-sm font-semibold shadow-lg ${
-                              therapist.availability.includes("Available Today")
+                              Array.isArray(therapist.availability) && therapist.availability.includes("Available Today")
                                 ? "bg-green-100 text-green-800 border-2 border-green-200"
                                 : "bg-yellow-100 text-yellow-800 border-2 border-yellow-200"
                             }`}
                           >
-                            {therapist.availability}
+                            {therapist.availability || "Bilinmiyor"}
                           </span>
 
                           <div className="flex space-x-3">
@@ -208,14 +177,9 @@ export default function TherapistsPage() {
                 </Card>
               ))}
             </div>
-
-            {/* Load More */}
-            <div className="text-center mt-8">
-              <button className="btn-secondary hover:bg-blue-light/20 border-blue-medium">Load More Therapists</button>
-            </div>
           </div>
         </div>
       </div>
     </div>
-  )
+  );
 }

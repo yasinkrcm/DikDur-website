@@ -14,7 +14,7 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://192.168.56.1:3000";
       const endpoint = apiUrl ? `${apiUrl}/api/auth/login` : "/api/auth/login";
       const res = await fetch(endpoint, {
         method: "POST",

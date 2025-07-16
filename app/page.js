@@ -233,6 +233,16 @@ export default function HomePage() {
           </div>
         </div>
       </section>
+      <div className="flex flex-wrap gap-4 justify-center mt-12">
+        <Link href="/dashboard" className="btn-primary">Dashboard</Link>
+        <Link href="/users" className="btn-secondary">Profil</Link>
+        <Link href="/rewards" className="btn-secondary">Ödüller</Link>
+        <Link href="/events" className="btn-secondary">Etkinlikler</Link>
+        <Link href="/challenges" className="btn-secondary">Meydan Okumalar</Link>
+        <Link href="/therapists" className="btn-secondary">Terapistler</Link>
+        <Link href="/ergonomics" className="btn-secondary">Ergonomi</Link>
+        <Link href="/notifications" className="btn-secondary">Bildirimler</Link>
+      </div>
     </div>
   )
 }

@@ -1,7 +1,7 @@
 "use client"
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Menu, X, Activity, Sparkles } from "lucide-react"
+import { Menu, X, Activity, Sparkles, Trophy } from "lucide-react"
 import LogoutButton from "./LogoutButton";
 
 export default function Navbar() {
@@ -9,6 +9,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [loggedIn, setLoggedIn] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [points, setPoints] = useState(null);
 
   useEffect(() => {
     setIsMounted(true);
@@ -23,6 +24,19 @@ export default function Navbar() {
     if (typeof window !== "undefined") {
       setLoggedIn(!!localStorage.getItem("token"));
       window.addEventListener("storage", () => setLoggedIn(!!localStorage.getItem("token")));
+    }
+  }, []);
+
+  useEffect(() => {
+    // Puanları çek
+    const token = localStorage.getItem("token");
+    if (token) {
+      fetch("/api/rewards/user-stats", { headers: { "Authorization": `Bearer ${token}` } })
+        .then(async res => {
+          if (!res.ok) return null;
+          try { return await res.json(); } catch { return null; }
+        })
+        .then(data => setPoints(data?.totalPoints ?? null));
     }
   }, []);
 
@@ -54,6 +68,20 @@ export default function Navbar() {
             </span>
           </Link>
 
+          {/* Mobilde points ve menü */}
+          <div className="flex items-center md:hidden">
+            <span className="flex items-center text-blue-dark font-bold bg-blue-100 px-3 py-1 rounded-xl text-sm mr-2">
+              <Trophy className="h-4 w-4 mr-1 text-yellow-500" />
+              {points !== null ? points : "0"}
+            </span>
+            <button
+              onClick={() => setIsOpen(!isOpen)}
+              className="relative p-2 text-gray-700 hover:text-[#4682A9] transition-colors duration-300"
+            >
+              {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </button>
+          </div>
+
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
             {navItems.map((item) => (
@@ -76,21 +104,19 @@ export default function Navbar() {
                 </>
               )
             )}
-            <button className="relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-[#4682A9] to-[#749BC2] text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 group">
+            <Link 
+              href="/posture-cam"
+              className="relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-[#4682A9] to-[#749BC2] text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 group"
+            >
               <Sparkles className="mr-2 h-4 w-4 group-hover:animate-spin" />
               Başla
               <div className="absolute inset-0 bg-gradient-to-r from-[#4682A9] to-[#749BC2] rounded-xl blur opacity-30 group-hover:opacity-50 transition-opacity"></div>
-            </button>
-          </div>
-
-          {/* Mobile menu button */}
-          <div className="md:hidden">
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="relative p-2 text-gray-700 hover:text-[#4682A9] transition-colors duration-300"
-            >
-              {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </button>
+            </Link>
+            {/* Desktopta points */}
+            <span className="hidden md:flex items-center text-blue-dark font-bold bg-blue-100 px-3 py-1 rounded-xl text-sm ml-2">
+              <Trophy className="h-4 w-4 mr-1 text-yellow-500" />
+              {points !== null ? points : "-"}
+            </span>
           </div>
         </div>
 
@@ -118,10 +144,13 @@ export default function Navbar() {
                   </>
                 )
               )}
-              <button className="mx-4 mt-4 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-[#4682A9] to-[#749BC2] text-white font-bold rounded-xl shadow-lg">
+              <Link 
+                href="/posture-cam"
+                className="mx-4 mt-4 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-[#4682A9] to-[#749BC2] text-white font-bold rounded-xl shadow-lg"
+              >
                 <Sparkles className="mr-2 h-4 w-4" />
                 Başla
-              </button>
+              </Link>
             </div>
           </div>
         )}

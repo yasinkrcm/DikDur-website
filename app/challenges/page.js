@@ -1,49 +1,30 @@
-import { Trophy, Users, Calendar, Target } from "lucide-react"
-import Card from "@/components/Card"
+"use client";
+
+import { useEffect, useState } from "react";
+import { Trophy, Users, Calendar, Target } from "lucide-react";
+import Card from "@/components/Card";
 
 export default function ChallengesPage() {
+  const [challenges, setChallenges] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    fetch("/api/challenges/list", { headers: { "Authorization": `Bearer ${token}` } })
+      .then((res) => res.json())
+      .then((data) => {
+        setChallenges(Array.isArray(data) ? data : data.data || []);
+        setLoading(false);
+      });
+  }, []);
+
   const weeklyChallenge = {
     title: "Posture Perfect Week",
     description: "Maintain good posture for 80% of your work hours",
     progress: 65,
     daysLeft: 3,
     participants: 87,
-  }
-
-  const challenges = [
-    {
-      title: "Step Counter Challenge",
-      description: "Walk 10,000 steps daily for a week",
-      difficulty: "Easy",
-      points: 100,
-      participants: 45,
-      timeLeft: "5 days",
-    },
-    {
-      title: "Desk Stretch Master",
-      description: "Complete 5 desk stretches every 2 hours",
-      difficulty: "Medium",
-      points: 200,
-      participants: 32,
-      timeLeft: "2 days",
-    },
-    {
-      title: "Hydration Hero",
-      description: "Drink 8 glasses of water daily",
-      difficulty: "Easy",
-      points: 75,
-      participants: 67,
-      timeLeft: "1 week",
-    },
-    {
-      title: "Ergonomic Excellence",
-      description: "Optimize your workspace setup",
-      difficulty: "Hard",
-      points: 300,
-      participants: 23,
-      timeLeft: "3 days",
-    },
-  ]
+  };
 
   const leaderboard = [
     { rank: 1, name: "Team Alpha", points: 2450, badge: "🥇" },
@@ -51,20 +32,22 @@ export default function ChallengesPage() {
     { rank: 3, name: "Posture Pros", points: 2210, badge: "🥉" },
     { rank: 4, name: "Stretch Squad", points: 1980, badge: "" },
     { rank: 5, name: "Health Heroes", points: 1875, badge: "" },
-  ]
+  ];
 
   const getDifficultyColor = (difficulty) => {
     switch (difficulty) {
       case "Easy":
-        return "bg-green-100 text-green-800"
+        return "bg-green-100 text-green-800";
       case "Medium":
-        return "bg-yellow-100 text-yellow-800"
+        return "bg-yellow-100 text-yellow-800";
       case "Hard":
-        return "bg-red-100 text-red-800"
+        return "bg-red-100 text-red-800";
       default:
-        return "bg-gray-100 text-gray-800"
+        return "bg-gray-100 text-gray-800";
     }
-  }
+  };
+
+  if (loading) return <div className="p-8">Loading...</div>;
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -191,5 +174,5 @@ export default function ChallengesPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -100,6 +100,6 @@ html {
 
 /* Selection color */
 ::selection {
-  background: linear-gradient(to right, #4682A9, #749BC2);
-  color: #FFFBDE;
+  background: #2563eb;
+  color: #fff;
 }

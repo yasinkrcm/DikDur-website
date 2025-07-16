@@ -1,26 +1,28 @@
 "use client";
 import useAuth from "@/hooks/useAuth";
-import { TrendingUp, Users, AlertTriangle, Award } from "lucide-react"
-import Card from "@/components/Card"
+import { useEffect, useState } from "react";
+import { TrendingUp, Users, AlertTriangle, Award } from "lucide-react";
+import Card from "@/components/Card";
 
 export default function DashboardPage() {
   useAuth();
-  const departments = [
-    { name: "Engineering", score: 85, employees: 45, color: "bg-green-500" },
-    { name: "Marketing", score: 78, employees: 23, color: "bg-blue-500" },
-    { name: "Sales", score: 72, employees: 31, color: "bg-yellow-500" },
-    { name: "HR", score: 91, employees: 12, color: "bg-green-600" },
-    { name: "Finance", score: 68, employees: 18, color: "bg-orange-500" },
-  ]
+  const [departments, setDepartments] = useState([]);
+  const [absenteeismData, setAbsenteeismData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const absenteeismData = [
-    { month: "Jan", days: 45 },
-    { month: "Feb", days: 38 },
-    { month: "Mar", days: 52 },
-    { month: "Apr", days: 41 },
-    { month: "May", days: 35 },
-    { month: "Jun", days: 29 },
-  ]
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    Promise.all([
+      fetch("/api/posture/getDepartmentScores", { headers: { "Authorization": `Bearer ${token}` } }).then((res) => res.json()),
+      fetch("/api/posture/getAbsenteeismTrends", { headers: { "Authorization": `Bearer ${token}` } }).then((res) => res.json()),
+    ]).then(([dept, absentee]) => {
+      setDepartments(Array.isArray(dept) ? dept : dept.data || []);
+      setAbsenteeismData(Array.isArray(absentee) ? absentee : absentee.data || []);
+      setLoading(false);
+    });
+  }, []);
+
+  if (loading) return <div className="p-8">Loading...</div>;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-cream via-blue-light/20 to-blue-medium/30 py-8">
@@ -40,7 +42,7 @@ export default function DashboardPage() {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-semibold text-blue-dark/70">Avg. Posture Score</p>
-                <p className="text-2xl font-bold text-blue-dark">78.5</p>
+                <p className="text-2xl font-bold text-blue-dark">{departments.length ? (departments.reduce((sum, d) => sum + d.score, 0) / departments.length).toFixed(1) : "-"}</p>
               </div>
             </div>
           </Card>
@@ -90,13 +92,13 @@ export default function DashboardPage() {
               {departments.map((dept, index) => (
                 <div key={index} className="flex items-center justify-between">
                   <div className="flex items-center space-x-3">
-                    <div className={`w-3 h-3 rounded-full ${dept.color}`}></div>
+                    <div className={`w-3 h-3 rounded-full ${dept.color || "bg-blue-500"}`}></div>
                     <span className="font-medium text-gray-900">{dept.name}</span>
                     <span className="text-sm text-gray-500">({dept.employees} employees)</span>
                   </div>
                   <div className="flex items-center space-x-2">
                     <div className="w-24 bg-gray-200 rounded-full h-2">
-                      <div className={`h-2 rounded-full ${dept.color}`} style={{ width: `${dept.score}%` }}></div>
+                      <div className={`h-2 rounded-full ${dept.color || "bg-blue-500"}`} style={{ width: `${dept.score}%` }}></div>
                     </div>
                     <span className="text-sm font-semibold text-gray-900 w-8">{dept.score}</span>
                   </div>

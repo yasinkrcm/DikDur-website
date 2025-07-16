@@ -1,46 +1,23 @@
-import { Calendar, Clock, Users, Video, MapPin, Star } from "lucide-react"
-import Card from "@/components/Card"
+"use client";
+import { useEffect, useState } from "react";
+import { Calendar, Clock, Users, Video, MapPin, Star } from "lucide-react";
+import Card from "@/components/Card";
 
 export default function EventsPage() {
-  const upcomingWebinars = [
-    {
-      id: 1,
-      title: "Desk Ergonomics: Setting Up Your Perfect Workspace",
-      presenter: "Dr. Sarah Johnson",
-      date: "2024-01-25",
-      time: "2:00 PM - 3:00 PM EST",
-      attendees: 45,
-      maxAttendees: 100,
-      type: "webinar",
-      description: "Learn how to optimize your workspace for better posture and reduced strain.",
-      image: "/placeholder.svg?height=200&width=300",
-    },
-    {
-      id: 2,
-      title: "Stress Management in the Modern Workplace",
-      presenter: "Dr. Michael Chen",
-      date: "2024-01-27",
-      time: "1:00 PM - 2:30 PM EST",
-      attendees: 67,
-      maxAttendees: 150,
-      type: "webinar",
-      description: "Practical techniques for managing workplace stress and improving mental health.",
-      image: "/placeholder.svg?height=200&width=300",
-    },
-    {
-      id: 3,
-      title: "Movement Breaks: Energizing Your Workday",
-      presenter: "Dr. Emily Rodriguez",
-      date: "2024-01-30",
-      time: "12:00 PM - 1:00 PM EST",
-      attendees: 23,
-      maxAttendees: 75,
-      type: "workshop",
-      description: "Interactive session on incorporating movement into your daily work routine.",
-      image: "/placeholder.svg?height=200&width=300",
-    },
-  ]
+  const [upcomingWebinars, setUpcomingWebinars] = useState([]);
+  const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    fetch("/api/events/list", { headers: { "Authorization": `Bearer ${token}` } })
+      .then((res) => res.json())
+      .then((data) => {
+        setUpcomingWebinars(Array.isArray(data) ? data : data.data || []);
+        setLoading(false);
+      });
+  }, []);
+
+  // groupSessions statik kalabilir veya benzer şekilde dinamik yapılabilir
   const groupSessions = [
     {
       id: 1,
@@ -90,20 +67,22 @@ export default function EventsPage() {
       difficulty: "Beginner",
       recurring: "Tue, Thu",
     },
-  ]
+  ];
 
   const getDifficultyColor = (difficulty) => {
     switch (difficulty) {
       case "Beginner":
-        return "bg-green-100 text-green-800"
+        return "bg-green-100 text-green-800";
       case "Intermediate":
-        return "bg-yellow-100 text-yellow-800"
+        return "bg-yellow-100 text-yellow-800";
       case "Advanced":
-        return "bg-red-100 text-red-800"
+        return "bg-red-100 text-red-800";
       default:
-        return "bg-blue-100 text-blue-800"
+        return "bg-blue-100 text-blue-800";
     }
-  }
+  };
+
+  if (loading) return <div className="p-8">Loading...</div>;
 
   return (
     <div className="min-h-screen bg-gray-50 py-8">
@@ -200,57 +179,34 @@ export default function EventsPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {groupSessions.map((session) => (
               <Card key={session.id}>
-                <div className="flex justify-between items-start mb-3">
-                  <h3 className="text-lg font-semibold text-gray-900">{session.title}</h3>
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(session.difficulty)}`}
-                  >
-                    {session.difficulty}
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">{session.title}</h3>
+                <p className="text-gray-600 text-sm mb-3">Instructor: {session.instructor}</p>
+                <div className="flex items-center text-sm text-gray-600 mb-2">
+                  <Calendar className="h-4 w-4 mr-2" />
+                  <span>{new Date(session.date).toLocaleDateString()}</span>
+                </div>
+                <div className="flex items-center text-sm text-gray-600 mb-2">
+                  <Clock className="h-4 w-4 mr-2" />
+                  <span>{session.time}</span>
+                </div>
+                <div className="flex items-center text-sm text-gray-600 mb-2">
+                  <MapPin className="h-4 w-4 mr-2" />
+                  <span>{session.location}</span>
+                </div>
+                <div className="flex items-center text-sm text-gray-600 mb-2">
+                  <Users className="h-4 w-4 mr-2" />
+                  <span>
+                    {session.participants}/{session.maxParticipants} participants
                   </span>
                 </div>
-
-                <div className="space-y-2 mb-4">
-                  <div className="flex items-center text-sm text-gray-600">
-                    <Star className="h-4 w-4 mr-2" />
-                    <span>Led by {session.instructor}</span>
-                  </div>
-                  <div className="flex items-center text-sm text-gray-600">
-                    <Calendar className="h-4 w-4 mr-2" />
-                    <span>
-                      {new Date(session.date).toLocaleDateString()} • {session.recurring}
-                    </span>
-                  </div>
-                  <div className="flex items-center text-sm text-gray-600">
-                    <Clock className="h-4 w-4 mr-2" />
-                    <span>{session.time}</span>
-                  </div>
-                  <div className="flex items-center text-sm text-gray-600">
-                    <MapPin className="h-4 w-4 mr-2" />
-                    <span>{session.location}</span>
-                  </div>
-                  <div className="flex items-center text-sm text-gray-600">
-                    <Users className="h-4 w-4 mr-2" />
-                    <span>
-                      {session.participants}/{session.maxParticipants} participants
-                    </span>
-                  </div>
-                </div>
-
-                <div className="mb-4">
-                  <div className="w-full bg-gray-200 rounded-full h-2">
-                    <div
-                      className="bg-green-600 h-2 rounded-full"
-                      style={{ width: `${(session.participants / session.maxParticipants) * 100}%` }}
-                    ></div>
-                  </div>
-                </div>
-
-                <div className="flex space-x-2">
-                  <button className="flex-1 btn-primary">Join Session</button>
-                  <button className="btn-secondary">Add to Calendar</button>
+                <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${getDifficultyColor(session.difficulty)}`}>
+                  {session.difficulty}
+                </span>
+                <div className="mt-4">
+                  <button className="btn-primary w-full">Join Session</button>
                 </div>
               </Card>
             ))}
@@ -258,5 +214,5 @@ export default function EventsPage() {
         </section>
       </div>
     </div>
-  )
+  );
 }
