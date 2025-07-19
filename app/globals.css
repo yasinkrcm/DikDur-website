@@ -63,15 +63,35 @@
 
 @layer components {
   .btn-primary {
-    @apply relative inline-flex items-center px-8 py-4 bg-gradient-to-r from-[#4682A9] to-[#749BC2] text-white font-bold rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105;
+    @apply relative inline-flex items-center px-8 py-4 bg-gradient-to-r from-[#4682A9] to-[#749BC2] text-white font-bold rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105 text-lg;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center px-8 py-4 bg-[#FFFBDE]/90 backdrop-blur-sm text-[#4682A9] font-semibold rounded-2xl border-2 border-[#91C8E4] hover:border-[#749BC2] shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105;
+    @apply inline-flex items-center px-8 py-4 bg-[#FFFBDE]/90 backdrop-blur-sm text-[#4682A9] font-semibold rounded-2xl border-2 border-[#91C8E4] hover:border-[#749BC2] shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 text-lg;
   }
 
   .card {
     @apply bg-[#FFFBDE]/90 backdrop-blur-sm rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-500 transform hover:scale-105 border border-[#91C8E4]/30;
+  }
+
+  .detection-badge {
+    @apply flex items-center gap-3 px-6 py-3 rounded-2xl shadow-lg bg-gradient-to-r from-[#4682A9] to-[#91C8E4] text-white font-bold text-lg mb-2 tracking-wide;
+    border: 2.5px solid #4682A9;
+    box-shadow: 0 6px 32px 0 #4682A955;
+    letter-spacing: 0.5px;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .detection-badge strong {
+    @apply text-yellow-300 font-extrabold text-xl ml-2;
+    text-shadow: 0 1px 4px #4682A9;
+  }
+  .detection-badge span {
+    @apply drop-shadow;
+  }
+  .detection-badge:hover {
+    transform: scale(1.07) rotate(-1deg);
+    box-shadow: 0 8px 36px 0 #4682A9aa;
+    background: linear-gradient(90deg, #749BC2 0%, #4682A9 100%);
   }
 }
 
@@ -102,4 +122,19 @@ html {
 ::selection {
   background: #2563eb;
   color: #fff;
+}
+
+body {
+  background: linear-gradient(135deg, #F6FAFF 0%, #E3F0FF 100%);
+  min-height: 100vh;
+}
+
+h1, h2, h3 {
+  text-shadow: 0 2px 12px #4682A955;
+}
+
+.camera-container {
+  @apply flex flex-col items-center justify-center bg-white/80 rounded-3xl shadow-2xl p-8 border border-[#91C8E4]/40;
+  max-width: 700px;
+  margin: 0 auto;
 }
