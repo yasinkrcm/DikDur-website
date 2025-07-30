@@ -9,11 +9,6 @@ export default function RootLayout({ children }) {
   return (
     <html lang="tr">
       <head>
-        {/* Model dosyalarını preload et */}
-        <link rel="preload" href="/models/RoboFlowModel.onnx" as="fetch" crossOrigin="anonymous" />
-        <link rel="preload" href="/models/ort-wasm-simd-threaded.wasm" as="fetch" crossOrigin="anonymous" />
-        <link rel="preload" href="/models/ort-wasm-simd-threaded.mjs" as="fetch" crossOrigin="anonymous" />
-        
         {/* WASM için gerekli headers */}
         <meta httpEquiv="Cross-Origin-Embedder-Policy" content="require-corp" />
         <meta httpEquiv="Cross-Origin-Opener-Policy" content="same-origin" />
