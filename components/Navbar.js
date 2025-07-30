@@ -59,12 +59,7 @@ export default function Navbar() {
   }, []);
 
   const navItems = [
-    { name: "Dashboard", href: "/dashboard" },
-    { name: "Challenges", href: "/challenges" },
-    { name: "Terapistler", href: "/therapists" },
-    { name: "Etkinlikler", href: "/events" },
-    { name: "Ödüller", href: "/rewards" },
-    { name: "Ergonomi", href: "/ergonomics" }, // Ergonomi eklendi
+    { name: "Dashboard", href: "/dashboard" }
   ]
 
   return (

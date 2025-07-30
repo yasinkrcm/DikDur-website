@@ -1,9 +1,0 @@
-YOLO Modelde ->
-.\.venv\Scripts\activate 
-POWERSHELL  = .\.venv\Scripts\activate.ps1
-
-Sonrasında hedef PyTorch dosyasının (.pt) olduğu konuma gidip =
-
-yolo export model=best.pt format=onnx imgsz=640
-
-output olan .onnx dosyasını public/models içine attıktan sonra posture-cam/page.js içinde best.onnx yazan kısmı dosya ismiyle değiştirilmesi gerekiyor.
