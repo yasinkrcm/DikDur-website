@@ -143,6 +143,15 @@ export default function HomePage() {
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-dark to-blue-medium rounded-2xl blur opacity-30 group-hover:opacity-50 transition-opacity"></div>
               </Link>
 
+              <Link
+                href="/posture-cam"
+                className="group inline-flex items-center px-8 py-4 bg-gradient-to-r from-green-600 to-green-500 text-white font-bold rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
+              >
+                <Brain className="mr-3 h-6 w-6 group-hover:animate-pulse" />
+                Duruş Analizi
+                <ArrowRight className="ml-3 h-6 w-6 group-hover:translate-x-1 transition-transform" />
+              </Link>
+
               <button className="group inline-flex items-center px-8 py-4 bg-cream/90 backdrop-blur-sm text-blue-dark font-semibold rounded-2xl border-2 border-blue-light hover:border-blue-medium shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105">
                 <Heart className="mr-3 h-6 w-6 text-red-500 group-hover:animate-pulse" />
                 Demo İzle

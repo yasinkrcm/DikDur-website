@@ -1,4 +1,6 @@
 import "./globals.css"
+import Navbar from "@/components/Navbar"
+import Footer from "@/components/Footer"
 
 export const metadata = {
   title: 'DikDur - Duruş Analizi',
@@ -14,7 +16,9 @@ export default function RootLayout({ children }) {
         <meta httpEquiv="Cross-Origin-Opener-Policy" content="same-origin" />
       </head>
       <body className="min-h-screen bg-gray-50">
-        {children}
+        <Navbar />
+        <main className="min-h-screen">{children}</main>
+        <Footer />
       </body>
     </html>
   )
