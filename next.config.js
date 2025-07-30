@@ -52,11 +52,11 @@ const nextConfig = {
   // Output optimizasyonu
   output: 'standalone',
 
-  // Experimental özellikler
-  experimental: {
-    optimizeCss: true,
-    optimizePackageImports: ['onnxruntime-web'],
-  },
+  // Experimental özellikleri kaldır (build hatası nedeniyle)
+  // experimental: {
+  //   optimizeCss: true,
+  //   optimizePackageImports: ['onnxruntime-web'],
+  // },
 };
 
 module.exports = nextConfig; 
