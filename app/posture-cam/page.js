@@ -51,10 +51,19 @@ export default function PostureCam() {
   const [modelLoaded, setModelLoaded] = useState(false);
   const [loadingModel, setLoadingModel] = useState(false);
   const [loadingCamera, setLoadingCamera] = useState(false);
+  const [initializing, setInitializing] = useState(false);
   const sessionRef = useRef(null);
   const inputNameRef = useRef(null);
   const [detections, setDetections] = useState([]);
   const [displayedDetections, setDisplayedDetections] = useState([]);
+
+  // ONNX Runtime'ı optimize et
+  useEffect(() => {
+    // WASM yollarını ayarla ve optimize et
+    ort.env.wasm.wasmPaths = '/models/';
+    ort.env.wasm.numThreads = 1; // Thread sayısını sınırla
+    ort.env.wasm.simd = false; // SIMD'yi kapat (daha uyumlu)
+  }, []);
 
   // runDetection fonksiyonunu component seviyesine taşı
   const runDetection = useCallback(async () => {
@@ -62,10 +71,10 @@ export default function PostureCam() {
       return;
     }
     
-    // Inference throttling
+    // Inference throttling - daha sık çalıştır
     if (!runDetection.lastInference) runDetection.lastInference = 0;
     const now = Date.now();
-    if (now - runDetection.lastInference < 500) {
+    if (now - runDetection.lastInference < 200) { // 500ms yerine 200ms
       return;
     }
     runDetection.lastInference = now;
@@ -173,7 +182,7 @@ export default function PostureCam() {
     }
   }, [modelLoaded]);
 
-  // Model yükleme fonksiyonu
+  // Model yükleme fonksiyonu - optimize edildi
   const loadModel = async () => {
     if (modelLoaded || loadingModel) return;
     
@@ -181,16 +190,14 @@ export default function PostureCam() {
     setError("");
     
     try {
-      // WASM dosyalarının yolunu ayarla
-      ort.env.wasm.wasmPaths = '/models/';
+      // Model yükleme süresini kısaltmak için cache kullan
+      const session = await ort.InferenceSession.create('/models/RoboFlowModel.onnx', {
+        executionProviders: ['wasm'],
+        graphOptimizationLevel: 'all'
+      });
       
-      // ONNX modelini yükle (onnxruntime-web)
-      const session = await ort.InferenceSession.create('/models/RoboFlowModel.onnx');
       sessionRef.current = session;
-      
-      // Modelin input adını al
       inputNameRef.current = session.inputNames[0];
-      
       setModelLoaded(true);
     } catch (err) {
       console.error('Model yükleme hatası:', err);
@@ -201,7 +208,7 @@ export default function PostureCam() {
     }
   };
 
-  // Kamera açma fonksiyonu
+  // Kamera açma fonksiyonu - optimize edildi
   const openCamera = async () => {
     if (loadingCamera) return;
     
@@ -214,12 +221,13 @@ export default function PostureCam() {
         throw new Error("Kamera desteği bulunamadı.");
       }
 
-      // Kamera izni iste
+      // Kamera izni iste - daha düşük çözünürlük
       const stream = await navigator.mediaDevices.getUserMedia({ 
         video: { 
-          width: { ideal: 224 },
-          height: { ideal: 224 },
-          facingMode: 'user'
+          width: { ideal: 320, max: 640 },
+          height: { ideal: 240, max: 480 },
+          facingMode: 'user',
+          frameRate: { ideal: 15, max: 30 }
         } 
       });
       
@@ -253,6 +261,25 @@ export default function PostureCam() {
     }
   };
 
+  // Paralel yükleme - model ve kamera aynı anda yüklensin
+  const initializeSystem = async () => {
+    setInitializing(true);
+    setError("");
+    
+    try {
+      // Model ve kamerayı paralel yükle
+      await Promise.all([
+        loadModel(),
+        openCamera()
+      ]);
+    } catch (err) {
+      console.error('Sistem başlatma hatası:', err);
+      setError('Sistem başlatılamadı: ' + err.message);
+    } finally {
+      setInitializing(false);
+    }
+  };
+
   useEffect(() => {
     let animationId;
     let isMounted = true;
@@ -283,20 +310,14 @@ export default function PostureCam() {
           .sort((a, b) => b.confidence - a.confidence)
           .slice(0, 1) // sadece en yüksek confidence'lı tespit
       );
-    }, 500);
+    }, 300); // 500ms yerine 300ms
     
     return () => clearInterval(interval);
   }, [cameraOn, detections]);
 
   const handleOpenCamera = async () => {
     setCameraOn(true);
-    setError("");
-    
-    // Önce modeli yükle
-    await loadModel();
-    
-    // Sonra kamerayı aç
-    await openCamera();
+    await initializeSystem();
   };
 
   const handleCloseCamera = () => {
@@ -322,15 +343,10 @@ export default function PostureCam() {
         </div>
       )}
       
-      {loadingModel && (
+      {(loadingModel || loadingCamera || initializing) && (
         <div className="text-blue-600 mb-4 p-3 bg-blue-100 rounded-lg animate-pulse">
-          Model yükleniyor, lütfen bekleyin...
-        </div>
-      )}
-      
-      {loadingCamera && (
-        <div className="text-green-600 mb-4 p-3 bg-green-100 rounded-lg animate-pulse">
-          Kamera açılıyor, lütfen bekleyin...
+          {initializing ? 'Sistem başlatılıyor...' : 
+           loadingModel ? 'Model yükleniyor...' : 'Kamera açılıyor...'}
         </div>
       )}
       
@@ -342,16 +358,16 @@ export default function PostureCam() {
               autoPlay
               playsInline
               muted
-              width={224}
-              height={224}
+              width={320}
+              height={240}
               className="rounded shadow"
               style={{ zIndex: 1 }}
             />
             {/* Canvas sadece video açıkken ve model yüklendiğinde gösterilir */}
             <canvas
               ref={canvasRef}
-              width={224}
-              height={224}
+              width={320}
+              height={240}
               className="absolute left-0 top-0 rounded pointer-events-none"
               style={{ zIndex: 2 }}
             />
@@ -387,14 +403,15 @@ export default function PostureCam() {
         <>
           <button
             onClick={handleOpenCamera}
-            disabled={loadingModel || loadingCamera}
+            disabled={loadingModel || loadingCamera || initializing}
             className={`px-6 py-2 rounded-lg font-bold shadow transition ${
-              loadingModel || loadingCamera
+              loadingModel || loadingCamera || initializing
                 ? 'bg-gray-400 cursor-not-allowed'
                 : 'bg-blue-600 text-white hover:bg-blue-700'
             }`}
           >
-            {loadingModel || loadingCamera ? 'Yükleniyor...' : 'Kamerayı Aç'}
+            {initializing ? 'Başlatılıyor...' : 
+             loadingModel || loadingCamera ? 'Yükleniyor...' : 'Kamerayı Aç'}
           </button>
           <div className="text-gray-500 mt-8">Kamera kapalı.</div>
         </>

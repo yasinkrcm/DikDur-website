@@ -3,18 +3,25 @@ import Navbar from "@/components/Navbar"
 import Footer from "@/components/Footer"
 
 export const metadata = {
-  title: "DikDur - Corporate Physiotherapy Platform",
-  description: "Modern physiotherapy platform for corporate wellness",
-    generator: 'v0.dev'
+  title: 'DikDur - Duruş Analizi',
+  description: 'Yapay zeka ile duruş analizi yapın',
 }
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body className="min-h-screen bg-gray-50">
-        <Navbar />
-        <main className="min-h-screen">{children}</main>
-        <Footer />
+    <html lang="tr">
+      <head>
+        {/* Model dosyalarını preload et */}
+        <link rel="preload" href="/models/RoboFlowModel.onnx" as="fetch" crossOrigin="anonymous" />
+        <link rel="preload" href="/models/ort-wasm-simd-threaded.wasm" as="fetch" crossOrigin="anonymous" />
+        <link rel="preload" href="/models/ort-wasm-simd-threaded.mjs" as="fetch" crossOrigin="anonymous" />
+        
+        {/* WASM için gerekli headers */}
+        <meta httpEquiv="Cross-Origin-Embedder-Policy" content="require-corp" />
+        <meta httpEquiv="Cross-Origin-Opener-Policy" content="same-origin" />
+      </head>
+      <body>
+        {children}
       </body>
     </html>
   )
