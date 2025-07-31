@@ -261,7 +261,7 @@ export default function PostureCam() {
               {displayedDetections.map((det, i) => (
                 <div key={i} className="detection-badge">
                   <span>{det.classLabel}</span>
-                  <strong>%{(det.confidence * 100).toFixed(1)}</strong>
+                  <strong>%{Math.min(100, (det.confidence * 75)).toFixed(1)}</strong>
                 </div>
               ))}
             </div>
