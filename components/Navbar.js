@@ -1,15 +1,18 @@
 "use client"
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { Menu, X, Activity, Sparkles, Trophy, Bell, User } from "lucide-react"
+import { Menu, X, Activity, Trophy, User } from "lucide-react"
 import LogoutButton from "./LogoutButton";
 import ClientOnly from "./ClientOnly";
+import { useLanguage } from "@/hooks/useLanguage";
+import { t } from "@/lib/translations";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [loggedIn, setLoggedIn] = useState(false);
   const [points, setPoints] = useState(null);
+  const { language, changeLanguage } = useLanguage();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -59,7 +62,7 @@ export default function Navbar() {
   }, []);
 
   const navItems = [
-    { name: "Dashboard", href: "/dashboard" }
+    { name: t('dashboard', language), href: "/dashboard" }
   ]
 
   return (
@@ -73,12 +76,12 @@ export default function Navbar() {
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-3 group">
             <div className="relative">
-              <Activity className="h-10 w-10 text-[#4682A9] group-hover:text-[#749BC2] transition-colors duration-300" />
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-r from-[#91C8E4] to-[#749BC2] rounded-full animate-pulse"></div>
+              <img 
+                src="/dikdur-logo.png" 
+                alt="DikDur Logo" 
+                className="h-32 w-auto transition-all duration-300 group-hover:scale-110"
+              />
             </div>
-            <span className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-gray-900 to-[#4682A9] group-hover:from-[#4682A9] group-hover:to-[#749BC2] transition-all duration-300">
-              DikDur
-            </span>
           </Link>
 
           {/* Mobilde points ve menü */}
@@ -107,20 +110,47 @@ export default function Navbar() {
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-[#4682A9] to-[#749BC2] group-hover:w-full transition-all duration-300"></span>
               </Link>
             ))}
-            {/* Bildirimler ve Profil simgeleri */}
-            <Link href="/notifications" className="relative text-gray-700 hover:text-[#4682A9] transition-colors duration-300 group">
-              <Bell className="h-6 w-6" />
-            </Link>
+            {/* Profil simgesi */}
             <Link href="/users" className="relative text-gray-700 hover:text-[#4682A9] transition-colors duration-300 group">
               <User className="h-6 w-6" />
             </Link>
+            
+            {/* Language Switcher */}
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => {
+                  changeLanguage('tr');
+                  window.location.reload(); // Sayfayı yenile
+                }}
+                className={`px-2 py-1 rounded-md text-sm font-medium transition-all duration-300 ${
+                  language === 'tr' 
+                    ? 'bg-[#4682A9] text-white' 
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                🇹🇷 TR
+              </button>
+              <button
+                onClick={() => {
+                  changeLanguage('en');
+                  window.location.reload(); // Sayfayı yenile
+                }}
+                className={`px-2 py-1 rounded-md text-sm font-medium transition-all duration-300 ${
+                  language === 'en' 
+                    ? 'bg-[#4682A9] text-white' 
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                🇺🇸 EN
+              </button>
+            </div>
             <ClientOnly>
               {loggedIn ? (
                 <LogoutButton className="relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-[#4682A9] to-[#749BC2] text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 group" />
               ) : (
                 <>
-                  <Link href="/login" className="relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-[#4682A9] to-[#749BC2] text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 group">Giriş</Link>
-                  <Link href="/register" className="relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-[#91C8E4] to-[#749BC2] text-blue-900 font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 group">Kayıt Ol</Link>
+                  <Link href="/login" className="relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-[#4682A9] to-[#749BC2] text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 group">{t('loginButton', language)}</Link>
+                  <Link href="/register" className="relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-[#91C8E4] to-[#749BC2] text-blue-900 font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 group">{t('registerButton', language)}</Link>
                 </>
               )}
             </ClientOnly>
@@ -128,7 +158,7 @@ export default function Navbar() {
               href="/posture-cam"
               className="relative inline-flex items-center px-6 py-3 bg-gradient-to-r from-[#4682A9] to-[#749BC2] text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 group"
             >
-              Başla
+              {t('start', language)}
             </Link>
             {/* Desktopta points */}
             <span className="hidden md:flex items-center text-blue-dark font-bold bg-blue-100 px-3 py-1 rounded-xl text-sm ml-2">
@@ -152,13 +182,45 @@ export default function Navbar() {
                   {item.name}
                 </Link>
               ))}
+              
+              {/* Mobile Language Switcher */}
+              <div className="flex items-center justify-center space-x-2 px-4 py-2">
+                <button
+                  onClick={() => {
+                    changeLanguage('tr');
+                    setIsOpen(false);
+                    window.location.reload();
+                  }}
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 ${
+                    language === 'tr' 
+                      ? 'bg-[#4682A9] text-white' 
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  🇹🇷 TR
+                </button>
+                <button
+                  onClick={() => {
+                    changeLanguage('en');
+                    setIsOpen(false);
+                    window.location.reload();
+                  }}
+                  className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 ${
+                    language === 'en' 
+                      ? 'bg-[#4682A9] text-white' 
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  🇺🇸 EN
+                </button>
+              </div>
               <ClientOnly>
                 {loggedIn ? (
                   <LogoutButton className="mx-4 mt-4 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-[#4682A9] to-[#749BC2] text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300" />
                 ) : (
                   <>
-                    <Link href="/login" className="mx-4 mt-4 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-[#4682A9] to-[#749BC2] text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">Giriş</Link>
-                    <Link href="/register" className="mx-4 mt-2 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-[#91C8E4] to-[#749BC2] text-blue-900 font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">Kayıt Ol</Link>
+                    <Link href="/login" className="mx-4 mt-4 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-[#4682A9] to-[#749BC2] text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">{t('loginButton', language)}</Link>
+                    <Link href="/register" className="mx-4 mt-2 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-[#91C8E4] to-[#749BC2] text-blue-900 font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">{t('registerButton', language)}</Link>
                   </>
                 )}
               </ClientOnly>
@@ -166,7 +228,7 @@ export default function Navbar() {
                 href="/posture-cam"
                 className="mx-4 mt-4 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-[#4682A9] to-[#749BC2] text-white font-bold rounded-xl shadow-lg"
               >
-                Başla
+                {t('start', language)}
               </Link>
             </div>
           </div>

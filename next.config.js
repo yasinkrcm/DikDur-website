@@ -1,5 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Environment variables
+  env: {
+    GEMINI_API_KEY: process.env.GEMINI_API_KEY,
+  },
   // WASM dosyalarını statik olarak serve et
   async headers() {
     return [

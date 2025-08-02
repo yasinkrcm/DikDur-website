@@ -32,21 +32,6 @@ export default function Footer() {
                   Dashboard
                 </a>
               </li>
-              <li>
-                <a href="/challenges" className="hover:text-white transition-colors">
-                  Challenges
-                </a>
-              </li>
-              <li>
-                <a href="/therapists" className="hover:text-white transition-colors">
-                  Find Therapists
-                </a>
-              </li>
-              <li>
-                <a href="/events" className="hover:text-white transition-colors">
-                  Live Events
-                </a>
-              </li>
             </ul>
           </div>
 
