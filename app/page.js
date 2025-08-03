@@ -75,17 +75,14 @@ export default function HomePage() {
               Dik<span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4682A9] to-[#749BC2]">Dur</span>
             </h1>
 
-            {/* Subtitle with Animation */}
-            <div className="relative">
-              <p className="text-2xl md:text-3xl text-gray-700 mb-4 max-w-4xl mx-auto font-light">
-                {t('employeeHealth', language)}{" "}
-                <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#4682A9] to-[#749BC2]">
-                  {t('revolution', language)}
-                </span>{" "}
-                {t('platform', language)}
-              </p>
-              <div className="absolute -top-2 -right-2 text-2xl animate-bounce">🚀</div>
-            </div>
+            {/* Subtitle */}
+            <p className="text-2xl md:text-3xl text-gray-700 mb-4 max-w-4xl mx-auto font-light">
+              {t('employeeHealth', language)}{" "}
+              <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#4682A9] to-[#749BC2]">
+                {t('revolution', language)}
+              </span>{" "}
+              {t('platform', language)}
+            </p>
 
             <p className="text-xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
               {t('aiDescription', language)}

@@ -65,6 +65,11 @@ export default function Navbar() {
     { name: t('dashboard', language), href: "/dashboard" }
   ]
 
+  // Mobil menüyü kapatma fonksiyonu
+  const closeMobileMenu = () => {
+    setIsOpen(false);
+  };
+
   return (
     <nav
       className={`fixed top-0 w-full z-50 transition-all duration-300 ${
@@ -177,18 +182,28 @@ export default function Navbar() {
                   key={item.name}
                   href={item.href}
                   className="text-gray-700 hover:text-[#4682A9] font-medium px-4 py-2 rounded-lg hover:bg-[#FFFBDE] transition-all duration-300"
-                  onClick={() => setIsOpen(false)}
+                  onClick={closeMobileMenu}
                 >
                   {item.name}
                 </Link>
               ))}
+              
+              {/* Profil linki mobilde */}
+              <Link
+                href="/users"
+                className="text-gray-700 hover:text-[#4682A9] font-medium px-4 py-2 rounded-lg hover:bg-[#FFFBDE] transition-all duration-300 flex items-center"
+                onClick={closeMobileMenu}
+              >
+                <User className="h-5 w-5 mr-2" />
+                {t('profile', language)}
+              </Link>
               
               {/* Mobile Language Switcher */}
               <div className="flex items-center justify-center space-x-2 px-4 py-2">
                 <button
                   onClick={() => {
                     changeLanguage('tr');
-                    setIsOpen(false);
+                    closeMobileMenu();
                     window.location.reload();
                   }}
                   className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 ${
@@ -202,7 +217,7 @@ export default function Navbar() {
                 <button
                   onClick={() => {
                     changeLanguage('en');
-                    setIsOpen(false);
+                    closeMobileMenu();
                     window.location.reload();
                   }}
                   className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-300 ${
@@ -216,17 +231,41 @@ export default function Navbar() {
               </div>
               <ClientOnly>
                 {loggedIn ? (
-                  <LogoutButton className="mx-4 mt-4 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-[#4682A9] to-[#749BC2] text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300" />
+                  <button 
+                    onClick={() => {
+                      closeMobileMenu();
+                      localStorage.removeItem("token");
+                      document.cookie = "token=; path=/; max-age=0";
+                      window.dispatchEvent(new Event("authChanged"));
+                      window.location.href = "/login";
+                    }}
+                    className="mx-4 mt-4 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-[#4682A9] to-[#749BC2] text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                  >
+                    Çıkış
+                  </button>
                 ) : (
                   <>
-                    <Link href="/login" className="mx-4 mt-4 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-[#4682A9] to-[#749BC2] text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">{t('loginButton', language)}</Link>
-                    <Link href="/register" className="mx-4 mt-2 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-[#91C8E4] to-[#749BC2] text-blue-900 font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300">{t('registerButton', language)}</Link>
+                    <Link 
+                      href="/login" 
+                      className="mx-4 mt-4 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-[#4682A9] to-[#749BC2] text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                      onClick={closeMobileMenu}
+                    >
+                      {t('loginButton', language)}
+                    </Link>
+                    <Link 
+                      href="/register" 
+                      className="mx-4 mt-2 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-[#91C8E4] to-[#749BC2] text-blue-900 font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300"
+                      onClick={closeMobileMenu}
+                    >
+                      {t('registerButton', language)}
+                    </Link>
                   </>
                 )}
               </ClientOnly>
               <Link 
                 href="/posture-cam"
                 className="mx-4 mt-4 inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-[#4682A9] to-[#749BC2] text-white font-bold rounded-xl shadow-lg"
+                onClick={closeMobileMenu}
               >
                 {t('start', language)}
               </Link>
