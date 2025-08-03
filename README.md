@@ -1,4 +1,2 @@
 
 # DikDur-website
-
-Deploy update 
